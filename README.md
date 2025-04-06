@@ -1,16 +1,11 @@
-# earthquake_app
 
-A new Flutter project.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+https://github.com/user-attachments/assets/363c3853-b82e-4f53-a4dc-e72610f6f0ba
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://earthquake.usgs.gov/fdsnws/event/1/
+• Show recent earthquakes happened all around the world
+• Sort data by magnitude and time
+• Show data within date range
+• Show data within a circular region
+• onTap launches the location on maps
