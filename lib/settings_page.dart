@@ -1,26 +1,37 @@
 import 'package:earthquake_app/providers/app_data_provider.dart';
+import 'package:earthquake_app/providers/earthquake_provider.dart';
 import 'package:earthquake_app/utils/helper_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final queryParams = ref.watch(queryParamsProvider);
+    final city= ref.watch(cityProvider);
+    final shouldUseLocation= ref.watch(shouldUseLocationProvider);
+    ref.listen(shouldShowLoadingBarProvider, (previous, next){
+      if(next){
+        EasyLoading.show(status: 'Fetching location...');
+      }else{
+        EasyLoading.dismiss();
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: Consumer<AppDataProvider>(
-        builder: (context, provider, child) => ListView(
+      body: ListView(
           padding: const EdgeInsets.all(8.0),
           children: [
             Text(
@@ -32,12 +43,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   ListTile(
                     title: const Text('Start Time'),
-                    subtitle: Text(provider.startTime),
+                    subtitle: Text(queryParams.starttime),
                     trailing: IconButton(
                       onPressed: () async {
                         final date = await selectDate();
                         if (date != null) {
-                          provider.setStartTime(date);
+                         ref.read(queryParamsProvider.notifier).setStartTime(date);
                         }
                       },
                       icon: const Icon(Icons.calendar_month),
@@ -45,24 +56,24 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   ListTile(
                     title: const Text('End Time'),
-                    subtitle: Text(provider.endTime),
+                    subtitle: Text(queryParams.endtime),
                     trailing: IconButton(
                       onPressed: () async {
                         final date = await selectDate();
                         if (date != null) {
-                          provider.setEndTime(date);
+                          ref.read(queryParamsProvider.notifier).setEndTime(date);
                         }
                       },
                       icon: const Icon(Icons.calendar_month),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      provider.getEarthquakeData();
-                      showMsg(context, 'Times are updated');
-                    },
-                    child: const Text('Update Time Changes'),
-                  )
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     provider.getEarthquakeData();
+                  //     showMsg(context, 'Times are updated');
+                  //   },
+                  //   child: const Text('Update Time Changes'),
+                  // )
                 ],
               ),
             ),
@@ -72,15 +83,15 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Card(
               child: SwitchListTile(
-                title: Text(provider.currentCity ?? 'Your city is unknown'),
-                subtitle: provider.currentCity == null
+                title: Text(city ?? 'Your city is unknown'),
+                subtitle: city == null
                     ? null
                     : Text(
-                        'Earthquake data will be shown within ${provider.maxRadiusKm} km radius from ${provider.currentCity}'),
-                value: provider.shouldUseLocation,
+                        'Earthquake data will be shown within ${queryParams.maxradiuskm} km radius from ${city}'),
+                value: shouldUseLocation,
                 onChanged: (value) async {
                   EasyLoading.show(status: 'Getting location...');
-                  await provider.setLocation(value);
+                 ref.read(queryParamsProvider.notifier).setLocation(value);
                   EasyLoading.dismiss();
                 },
               ),
@@ -89,21 +100,20 @@ class _SettingsPageState extends State<SettingsPage> {
               'Set a min Magnitude',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            Slider(
-              value: double.tryParse(provider.minMagnitude) ?? 4,
-              min: 1,
-              max: 10,
-              divisions: 10,
-              label: provider.minMagnitude,
-              onChanged: (double value) {
-                setState(() {
-                  provider.setMag(value.toString());
-                });
-              },
-            ),
+            // Slider(
+            //   value: double.tryParse(provider.minMagnitude) ?? 4,
+            //   min: 1,
+            //   max: 10,
+            //   divisions: 10,
+            //   label: provider.minMagnitude,
+            //   onChanged: (double value) {
+            //     setState(() {
+            //       provider.setMag(value.toString());
+            //     });
+            //   },
+            // ),
           ],
-        ),
-      ),
+        )
     );
   }
 
